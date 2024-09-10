@@ -1,9 +1,11 @@
 package com.bitsMind.myFirstProject.Controller;
 
+import com.bitsMind.myFirstProject.Api.Response.WeatherResponse;
 import com.bitsMind.myFirstProject.Entity.JournalEntry;
 import com.bitsMind.myFirstProject.Entity.User;
 import com.bitsMind.myFirstProject.Service.JournalEntryService;
 import com.bitsMind.myFirstProject.Service.UserService;
+import com.bitsMind.myFirstProject.Service.WeatherService;
 import com.mongodb.lang.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import java.util.Optional;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private WeatherService weatherService;
 
     @GetMapping
     public ResponseEntity<?> getAllUsers(){
@@ -75,5 +79,15 @@ public class UserController {
             return new ResponseEntity<>(userInDb,HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    @GetMapping("/greeting")
+    public ResponseEntity<?> greeting(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        WeatherResponse weatherResponse = weatherService.getWeather("Mumbai");
+        String greeting="";
+        if(weatherResponse!=null){
+            greeting= ", Weather feels like "+weatherResponse.getCurrent().getFeelslike();
+        }
+        return new ResponseEntity<>("Hi "+authentication.getName()+greeting,HttpStatus.OK);
     }
 }
